@@ -38,8 +38,6 @@ rm -rf "$TARGETBIN" "$DISTDIR" "$BUILDDIR" "$SPEC"
 
 echo "Building portable binary..."
 PYINSTALLER_ARGS=(
-    --clean
-    --noconfirm
     --windowed
     --add-data "$SOURCEDIR/*.py${ADDDATA_SEP}./src/$MODULENAME"
     --add-data "$SOURCEDIR/version.yml${ADDDATA_SEP}./src/$MODULENAME"
@@ -51,7 +49,17 @@ PYINSTALLER_ARGS=(
     --copy-metadata imageio
 )
 
-pyinstaller "${PYINSTALLER_ARGS[@]}" "$PY"
+pyi-makespec "${PYINSTALLER_ARGS[@]}" "$PY"
+
+# GStreamer locates its plugin directory relative to libgstreamer's own path, so a
+# bundled copy makes it search inside the extracted bundle, where no plugins exist,
+# and QMediaPlayer then fails to build any pipeline. Ship none of them and the
+# system GStreamer, which knows where its plugins are, gets used instead.
+if [ "$UNAME" != "Darwin" ]; then
+    sed -i "s|^pyz = PYZ|a.binaries = [b for b in a.binaries if not (b[0].split('/')[-1].startswith('libgst') and '-1.0.so' in b[0])]\npyz = PYZ|" "$SPEC"
+fi
+
+pyinstaller --clean --noconfirm "$SPEC"
 
 echo "Cleaning up after making release..."
 if [ "$UNAME" = "Darwin" ] && [ -d "$DISTDIR/$MAINFILENAME.app" ]; then

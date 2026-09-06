@@ -157,6 +157,7 @@ cython_debug/
 *.deb
 *.rpm
 *.appimage
+/binary-waterfall
 
 .idea/*
 file_version_info.txt

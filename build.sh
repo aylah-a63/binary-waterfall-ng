@@ -37,6 +37,7 @@ PYINSTALLER_ARGS=(
     --add-data "$RESOURCEDIR/*${ADDDATA_SEP}./src/$MODULENAME/resources"
     --onefile
     --icon="$ICON"
+    --copy-metadata imageio
 )
 
 # PyInstaller's splash-screen feature does not support macOS

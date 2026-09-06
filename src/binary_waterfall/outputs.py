@@ -51,7 +51,7 @@ class Player:
         # self.audio.setAudioOutput(self.audio_output)
 
         # Set audio playback settings
-        self.set_volume(100)
+        self.set_volume(constants.DEFAULTS["player_volume"])
 
         # Set set_image_timestamp to run when the audio position is changed
         self.audio.positionChanged.connect(self.set_image_timestamp)

@@ -5,6 +5,7 @@ DEFAULTS = {
     "sample_bytes": 1,
     "sample_rate": 32000,
     "file_volume": 100,
+    "player_volume": 15,
     "width": 48,
     "height": 48,
     "color_format_string": "bgrx",

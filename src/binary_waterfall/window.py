@@ -182,6 +182,10 @@ class MyQMainWindow(QMainWindow):
         self.setCentralWidget(self.main_widget)
 
         self.main_menu = self.menuBar()
+        # Keep the menus in the window: Qt hands them to KDE's global menu, which
+        # nothing here displays. macOS keeps its native top bar menu.
+        if constants.PLATFORM == constants.PlatformCode.LINUX:
+            self.main_menu.setNativeMenuBar(False)
         self.setStyleSheet("QMenuBar {{ background-color: {bg}; }}".format(
             bg=constants.COLORS["status_background"]
         ))

@@ -1,0 +1,90 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # PyQt5 needs the xcb platform libraries, and QMediaPlayer needs the system
+      # GStreamer plugins, which the bundle deliberately does not carry.
+      - name: Install Linux runtime dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            xvfb \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+            libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 \
+            libxcb-xfixes0 libegl1
+
+      - name: Build
+        run: ./build.sh
+
+      - name: Locate the built executable
+        id: exe
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            echo "path=./binary-waterfall.app/Contents/MacOS/binary-waterfall" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=./binary-waterfall" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Building proves nothing here: every packaging bug this app has hit built
+      # cleanly and then failed at startup. Launch it and read what it says.
+      - name: Smoke test
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            xvfb-run -a "${{ steps.exe.outputs.path }}" > run.log 2>&1 &
+          else
+            "${{ steps.exe.outputs.path }}" > run.log 2>&1 &
+          fi
+          pid=$!
+
+          sleep 25
+
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "::error::App exited before the smoke test finished"
+            cat run.log
+            exit 1
+          fi
+          kill "$pid" 2>/dev/null || true
+
+          for pattern in \
+            'Traceback' \
+            'ModuleNotFoundError' \
+            'no service found' \
+            'no such element factory' \
+            'no element "' \
+            'Failed to execute script'
+          do
+            if grep -qF "$pattern" run.log; then
+              echo "::error::Found '$pattern' in startup output"
+              cat run.log
+              exit 1
+            fi
+          done
+
+          echo "Started cleanly."
+          cat run.log
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: startup-log-${{ matrix.os }}
+          path: run.log

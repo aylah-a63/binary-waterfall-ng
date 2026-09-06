@@ -160,3 +160,5 @@ cython_debug/
 
 .idea/*
 file_version_info.txt
+
+.DS_Store

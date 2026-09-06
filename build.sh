@@ -14,13 +14,24 @@ SPEC="$ORIGDIR/$MAINFILENAME.spec"
 TARGETBIN="$ORIGDIR/$MAINFILENAME"
 
 RESOURCEDIR="$SOURCEDIR/resources"
-SPLASH_IMG="$RESOURCEDIR/splash.jpg"
+
+VENV="$ORIGDIR/.venv"
 
 UNAME="$(uname -s)"
 case "$UNAME" in
     Darwin*) ADDDATA_SEP=":" ; ICON="$RESOURCEDIR/icon.png" ;;
     *)       ADDDATA_SEP=":" ; ICON="$RESOURCEDIR/icon.png" ;;
 esac
+
+# Build in an isolated venv: distro-packaged numpy links against libFlexiBLAS,
+# whose backends PyInstaller does not collect, and Python 3.13 dropped audioop.
+if [ ! -d "$VENV" ]; then
+    echo "Creating build environment in $VENV..."
+    python3 -m venv "$VENV"
+    "$VENV/bin/pip" install --upgrade pip
+    "$VENV/bin/pip" install pyinstaller "$ORIGDIR"
+fi
+export PATH="$VENV/bin:$PATH"
 
 echo "Cleaning up before making release..."
 rm -rf "$TARGETBIN" "$DISTDIR" "$BUILDDIR" "$SPEC"
@@ -39,11 +50,6 @@ PYINSTALLER_ARGS=(
     --icon="$ICON"
     --copy-metadata imageio
 )
-
-# PyInstaller's splash-screen feature does not support macOS
-if [ "$UNAME" != "Darwin" ]; then
-    PYINSTALLER_ARGS+=(--splash="$SPLASH_IMG")
-fi
 
 pyinstaller "${PYINSTALLER_ARGS[@]}" "$PY"
 

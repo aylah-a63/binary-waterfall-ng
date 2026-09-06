@@ -3,12 +3,13 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "binary-waterfall"
-version = "3.7.0"
-readme = "README_pypi.md"
-description = "A Raw Data Media Player"
+name = "binary-waterfall-ng"
+version = "0.1.0"
+readme = "README.md"
+description = "A Cross-Platform Raw Data Media Player"
 license= {file = "LICENSE"}
 authors = [
+    {name = "Aylah Amalthea", email = "aylah.a63@proton.me"},
     {name = "Ella Jameson", email = "ellagjameson@gmail.com"}
 ]
 classifiers = [
@@ -33,9 +34,9 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/nimaid/binary-waterfall"
-repository = "https://github.com/nimaid/binary-waterfall"
-Issues = "https://github.com/nimaid/binary-waterfall/issues"
+homepage = "https://github.com/aylah.a63/binary-waterfall-ng"
+repository = "https://github.com/aylah.a63/binary-waterfall-ng"
+Issues = "https://github.com/aylah.a63/binary-waterfall-ng/issues"
 
 [project.scripts]
 binary-waterfall = "binary_waterfall:run"

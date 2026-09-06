@@ -4,7 +4,7 @@ import math
 import time
 import tempfile
 import pydub
-from moviepy.editor import ImageSequenceClip, AudioFileClip
+from moviepy import ImageSequenceClip, AudioFileClip
 from PIL import Image
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
@@ -430,7 +430,7 @@ class Renderer:
         sequence_clip = ImageSequenceClip(frames_list, fps=fps)
         audio_clip = AudioFileClip(audio_file)
 
-        video_clip = sequence_clip.set_audio(audio_clip)
+        video_clip = sequence_clip.with_audio(audio_clip)
         # TODO: Control quality settings
         # TODO: Set temp audio file location if possible
         video_clip.write_videofile(

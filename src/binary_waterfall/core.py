@@ -17,6 +17,12 @@ class MainWindow:
         if constants.PLATFORM == constants.PlatformCode.WINDOWS:
             os.environ["QT_QPA_PLATFORM"] = "windows:darkmode=1"
 
+        # Without this, Windows falls back to bitmap-stretch DPI virtualization on
+        # high-DPI screens: every fixed-pixel widget gets blurry and oversized, and
+        # click coordinates land on the stretched bitmap instead of the real widget.
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
         # Make main objects
         self.app = QApplication(qt_args)
         self.window = window.MyQMainWindow()

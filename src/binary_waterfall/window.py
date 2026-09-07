@@ -130,7 +130,9 @@ class MyQMainWindow(QMainWindow):
 
         self.volume_label = QLabel()
         self.volume_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.volume_label.setFixedWidth(30)
+        # Width is font-dependent (Segoe UI on Windows renders "100%" wider than
+        # the default fonts on macOS/Linux), so size from metrics, not a magic number.
+        self.volume_label.setFixedWidth(self.volume_label.fontMetrics().horizontalAdvance("100%") + 4)
         self.set_volume_label_value(self.current_volume)
 
         self.volume_slider = QSlider(Qt.Vertical)

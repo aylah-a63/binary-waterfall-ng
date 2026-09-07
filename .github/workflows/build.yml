@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -33,14 +33,23 @@ jobs:
             libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 \
             libxcb-xfixes0 libegl1 libpulse-mainloop-glib0
 
-      - name: Build
+      - name: Build (Unix)
+        if: runner.os != 'Windows'
         run: ./build.sh
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: .\build.bat
+        shell: cmd
 
       - name: Locate the built executable
         id: exe
+        shell: bash
         run: |
           if [ "$RUNNER_OS" = "macOS" ]; then
             echo "path=./binary-waterfall.app/Contents/MacOS/binary-waterfall" >> "$GITHUB_OUTPUT"
+          elif [ "$RUNNER_OS" = "Windows" ]; then
+            echo "path=./binary-waterfall.exe" >> "$GITHUB_OUTPUT"
           else
             echo "path=./binary-waterfall" >> "$GITHUB_OUTPUT"
           fi
@@ -48,6 +57,7 @@ jobs:
       # Building proves nothing here: every packaging bug this app has hit built
       # cleanly and then failed at startup. Launch it and read what it says.
       - name: Smoke test
+        shell: bash
         run: |
           if [ "$RUNNER_OS" = "Linux" ]; then
             xvfb-run -a "${{ steps.exe.outputs.path }}" > run.log 2>&1 &

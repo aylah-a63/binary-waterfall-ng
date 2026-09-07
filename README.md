@@ -34,6 +34,9 @@ rm ~/.local/bin/binary-waterfall \
    ~/.local/share/icons/binary-waterfall.png
 ```
 
+## Anything different?
+Yes. There have been issues and PRs open since 2023; this repo fixes the issues. 
+
 ## Credits
 Thank you so much to Ella Jameson for developing the original software. Please make sure to check out her work here: https://github.com/nimaid/binary-waterfall
 

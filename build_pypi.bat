@@ -1,40 +1,44 @@
 @echo off
-
-set ENVNAME=binary-waterfall
-set BUILDENVNAME=build
+setlocal
 
 set ORIGDIR=%CD%
 set DISTDIR=%ORIGDIR%\dist
 
-call conda activate %BUILDENVNAME%
+set VENV=%ORIGDIR%\.venv
+
+REM Same venv as build.bat, but that one does not install the packaging tools.
+if not exist "%VENV%" (
+    echo Creating build environment in %VENV%...
+    python -m venv "%VENV%"
+    if errorlevel 1 goto ERROR
+    call "%VENV%\Scripts\pip.exe" install --upgrade pip
+    if errorlevel 1 goto ERROR
+)
+call "%VENV%\Scripts\pip.exe" install --upgrade build twine
+if errorlevel 1 goto ERROR
+set PATH=%VENV%\Scripts;%PATH%
 
 if "%~1" == "upload" goto UPLOAD
 
 echo Cleaning up before making release...
-del /f /s /q "%DISTDIR%" 1>nul 2>&1
-rmdir /s /q "%DISTDIR%" 1>nul 2>&1
+if exist "%DISTDIR%" rmdir /s /q "%DISTDIR%"
 
 echo Making PyPI release...
-python -m build
+call python -m build
 if errorlevel 1 goto ERROR
 
-goto DONE
+echo Build done!
+exit /B 0
 
 
 :UPLOAD
 echo Uploading to PyPI
-twine upload "%DISTDIR%"\*
+call twine upload "%DISTDIR%"\*
 if errorlevel 1 goto ERROR
-goto DONE
+echo Upload done!
+exit /B 0
 
 :ERROR
-cd %ORIGDIR%
-call conda deactivate
+cd /d "%ORIGDIR%"
 echo Build failed!
 exit /B 1
-
-:DONE
-cd %ORIGDIR%
-call conda deactivate
-echo Build done!
-exit /B 0

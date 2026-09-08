@@ -11,8 +11,8 @@ curl -fsSL https://raw.githubusercontent.com/aylah-a63/binary-waterfall-ng/main/
 ```
 
 Windows:
-```bat
-curl -fsSL https://raw.githubusercontent.com/aylah-a63/binary-waterfall-ng/main/install.bat -o install.bat && install.bat
+```bash
+curl.exe -fsSL https://raw.githubusercontent.com/aylah-a63/binary-waterfall-ng/main/install.bat -o install.bat; .\install.bat
 ```
 ***Follow good security practices when pasting commands into a terminal.*** Please read either [install.sh](install.sh) or [install.bat](install.bat) before running the command.
 
